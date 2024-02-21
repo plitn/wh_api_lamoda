@@ -36,6 +36,7 @@ func (s *service) ReserveProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+	writeResponseJson(w, model.Response{Status: http.StatusOK, Result: "Products reserved successfully"})
 }
 
 func (s *service) UnReserveProduct(w http.ResponseWriter, r *http.Request) {

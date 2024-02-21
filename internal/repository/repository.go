@@ -49,7 +49,7 @@ func (r *repository) UpdateReserveProducts(ctx context.Context, reserveData mode
 		}
 
 		_, err = tx.ExecContext(ctx,
-			"UPDATE wh_product SET product_qty = product_qty - $1, reserved_qty = + $1 "+
+			"UPDATE wh_product SET product_qty = product_qty - $1, reserved_qty = reserved_qty + $1 "+
 				"WHERE product_id = $2 and wh_id = $3",
 			product.Qty, product.ProductId, reserveData.WhId)
 		if err != nil {
@@ -87,8 +87,9 @@ func (r *repository) UpdateUnReserveProducts(ctx context.Context, reserveData mo
 			return fmt.Errorf("not enough reserved quantity available for product_id = %d", product.ProductId)
 		}
 
-		_, err = tx.ExecContext(ctx, "UPDATE wh_product SET product_qty = product_qty + $1, reserved_qty = - $1"+
-			"WHERE product_id = $2 and wh_id = $3",
+		_, err = tx.ExecContext(ctx,
+			"UPDATE wh_product SET product_qty = product_qty + $1, reserved_qty = reserved_qty - $1 "+
+				"WHERE product_id = $2 and wh_id = $3",
 			product.Qty, product.ProductId, reserveData.WhId)
 		if err != nil {
 			return err
@@ -105,44 +106,49 @@ func (r *repository) UpdateUnReserveProducts(ctx context.Context, reserveData mo
 
 func (r *repository) GetProductsQtyInWh(ctx context.Context, whId int64) ([]model.WarehouseAllProductsQty, error) {
 	var qtyData []model.WarehouseAllProductsQty
-	tx, err := r.db.Begin()
+	//tx, err := r.db.Begin()
+	//if err != nil {
+	//	return nil, err
+	//}
+	//defer func() {
+	//	_ = tx.Rollback()
+	//}()
+	query := "SELECT product_id, product_qty, reserved_qty FROM wh_product WHERE wh_id = $1"
+	err := r.db.SelectContext(ctx, &qtyData, query, whId)
 	if err != nil {
 		return nil, err
 	}
-	defer func() {
-		_ = tx.Rollback()
-	}()
-
-	_, err = tx.ExecContext(ctx, "LOCK TABLE wh_product IN SHARE MODE")
-	if err != nil {
-		return nil, err
-	}
-
-	rows, err := tx.QueryContext(ctx,
-		"SELECT product_id, product_qty, reserved_qty FROM wh_product WHERE wh_id = $1", whId)
-	if err != nil {
-		return nil, err
-	}
-	defer func() {
-		_ = rows.Close()
-	}()
-
-	for rows.Next() {
-		var productQuantityRow model.WarehouseAllProductsQty
-		if err := rows.Scan(&productQuantityRow); err != nil {
-			return nil, err
-		}
-		qtyData = append(qtyData, productQuantityRow)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
-	err = tx.Commit()
-	if err != nil {
-		return nil, err
-	}
-
 	return qtyData, nil
+	//_, err = tx.ExecContext(ctx, "LOCK TABLE wh_product IN SHARE MODE")
+	//if err != nil {
+	//	return nil, err
+	//}
+	//
+	//rows, err := tx.QueryContext(ctx,
+	//	"SELECT product_id, product_qty, reserved_qty FROM wh_product WHERE wh_id = $1", whId)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//defer func() {
+	//	_ = rows.Close()
+	//}()
+	//
+	//for rows.Next() {
+	//	var productQuantityRow model.WarehouseAllProductsQty
+	//	if err := rows.Scan(&productQuantityRow); err != nil {
+	//		return nil, err
+	//	}
+	//	qtyData = append(qtyData, productQuantityRow)
+	//}
+	//
+	//if err := rows.Err(); err != nil {
+	//	return nil, err
+	//}
+	//
+	//err = tx.Commit()
+	//if err != nil {
+	//	return nil, err
+	//}
+	//
+	//return qtyData, nil
 }

@@ -1,0 +1,16 @@
+FROM golang:latest
+
+ENV DATABASE_DRIVER_NAME="postgres"
+ENV DATABASE_DSN="host=postgres port=5000 user=postgres password=lamoda dbname=lamoda_db sslmode=disable timezone=UTC"
+
+WORKDIR /app
+
+COPY . .
+
+# Build the Go app
+RUN go build -o wh_api_lamoda ./cmd/wh_api_lamoda
+RUN go mod tidy
+
+EXPOSE 8080
+
+CMD ["./wh_api_lamoda"]

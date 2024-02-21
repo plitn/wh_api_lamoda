@@ -1,0 +1,2 @@
+### Get Wh products info
+GET http://localhost:8080/api/get-wh-qty?whId=112

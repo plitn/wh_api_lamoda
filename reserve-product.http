@@ -1,0 +1,16 @@
+POST http://localhost:8080/api/reserve-products
+Content-Type: application/json
+
+{
+  "wh_id": 112,
+  "products_data": [
+    {
+      "product_id": 79753,
+      "qty": 4
+    },
+    {
+      "product_id": 35650,
+      "qty": 10
+    }
+  ]
+}

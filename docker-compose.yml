@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  db:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile.db
+    ports:
+      - "5000:5432"
+    environment:
+      POSTGRES_DB: lamoda_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: lamoda
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  golang_app:
+    build:
+      context: .
+      dockerfile: Dockerfile.golang
+    ports:
+      - "8080:8080"  # Adjust the port as per your Golang application requirements
+    depends_on:
+      - db
+
+volumes:
+  pgdata:

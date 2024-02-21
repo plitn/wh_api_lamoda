@@ -1,11 +1,8 @@
 package config
 
 import (
-	"fmt"
-	"time"
-
-	"github.com/joho/godotenv"
-	"github.com/kelseyhightower/envconfig"
+	"github.com/plitn/wh_api_lamoda/internal/logger"
+	"os"
 )
 
 type Config struct {
@@ -13,27 +10,36 @@ type Config struct {
 }
 
 type DB struct {
-	Name            string        `envconfig:"DATABASE_NAME" required:"true"`
-	DriverName      string        `envconfig:"DATABASE_DRIVER_NAME" required:"true"`
-	DSN             string        `envconfig:"DATABASE_DSN" required:"true"`
-	MaxOpenConns    int           `envconfig:"DATABASE_MAX_OPEN_CONNS" required:"true"`
-	MaxIdleConns    int           `envconfig:"DATABASE_MAX_IDLE_CONNS" required:"true"`
-	ConnMaxLifetime time.Duration `envconfig:"DATABASE_CONN_MAX_LIFETIME" required:"true"`
+	DSN        string
+	DriverName string
 }
 
 func LoadConfig() *Config {
-	for _, fileName := range []string{".env.local", ".env"} { //.env.local for local secrets (higher priority than .env)
-		err := godotenv.Load(fileName) //in cycle cause first error in varargs prevents loading next files
-		if err != nil {
-			fmt.Println(fmt.Errorf("error loading %s fileName : %v", fileName, err))
-		}
+	logger.Logger.Println("1")
+
+	driverName := os.Getenv("DATABASE_DRIVER_NAME")
+	logger.Logger.Println("2")
+
+	if driverName == "" {
+		logger.Logger.Println("DATABASE_DRIVER_NAME is not set")
 	}
-	cfg := Config{}
-	if err := envconfig.Process("", &cfg); err != nil {
-		fmt.Println(fmt.Errorf("cannot process envs: %v", err))
-	} else {
-		fmt.Println("Config initialized")
+	logger.Logger.Println("3")
+
+	dsn := os.Getenv("DATABASE_DSN")
+	logger.Logger.Println("4")
+
+	if dsn == "" {
+		logger.Logger.Println("DATABASE_DSN is not set")
 	}
+	logger.Logger.Println("5")
+
+	cfg := Config{
+		DB: &DB{
+			DSN:        dsn,
+			DriverName: driverName,
+		},
+	}
+	logger.Logger.Println("6")
 
 	return &cfg
 }
