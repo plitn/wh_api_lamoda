@@ -10,7 +10,9 @@ run:
 up: build run
 
 stop:
-	docker stop $(PROJECT_NAME)-app-container $(PROJECT_NAME)-db-container
+	docker stop wh_api_lamoda_golang_app_1
+	docker stop wh_api_lamoda_db_1
 
 clean: stop
-	docker rm $(PROJECT_NAME)-app-container $(PROJECT_NAME)-db-container
+	docker rm wh_api_lamoda_golang_app_1
+	docker rm wh_api_lamoda_db_1

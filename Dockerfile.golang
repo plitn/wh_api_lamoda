@@ -1,7 +1,7 @@
 FROM golang:latest
 
 ENV DATABASE_DRIVER_NAME="postgres"
-ENV DATABASE_DSN="host=postgres port=5000 user=postgres password=lamoda dbname=lamoda_db sslmode=disable timezone=UTC"
+ENV DATABASE_DSN="host=db port=5432 user=postgres password=lamoda dbname=lamoda_db sslmode=disable timezone=UTC"
 
 WORKDIR /app
 
